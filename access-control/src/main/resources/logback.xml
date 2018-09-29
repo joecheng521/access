@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+	<jmxConfigurator />
+	<conversionRule conversionWord="threadId"
+		converterClass="com.framework.converter.ThreadIdConverter" />
+	<!--Tomcat配置. env 前缀 -->
+	<property name="local.cell.name" value="${env.cell.name:-cell}" />
+	<property name="local.node.name" value="${env.node.name:-node}" />
+	<!--应用监听器自动配置的参数 me.sys 前缀 -->
+	<property name="local.app.name" value="${sys.app.name:-app}" />
+	<property name="local.log.path" value="${sys.log.path:-./../logs}" />
+	<property name="local.log.root.level" value="${sys.log.root.level:-INFO}" />
+	<property name="local.log.spring.level" value="${sys.log.spring.level:-INFO}" />
+	<property name="local.log.lowest.level" value="${sys.log.lowest.level:-INFO}" />
+	<!--请与监听器中塞入的sys.log.fullpath保持一致 -->
+	<property name="local.log.fullpath"
+		value="${local.log.path}/${local.app.name}-${local.cell.name}-${local.node.name}" />
+	<!--日志冗余打印 cell node -->
+	<property name="local.file.format"
+		value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [${local.cell.name}] [${local.node.name}] [%X{traceId}] [%threadId] [%level] [%logger{36}:%-4line] - %msg%n" />
+	<property name="local.file.format.http"
+		value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [${local.cell.name}] [${local.node.name}] [%X{traceId}] [%threadId] [%level] [%logger{36}:%-4line] - %msg%n" />
+	<property name="local.file.format.dubbo"
+		value="[%d{yyyy-MM-dd HH:mm:ss.SSS}] [${local.cell.name}] [${local.node.name}] [%X{traceId}] [%threadId] [%level] [%logger{36}:%-4line] - %msg%n" />
+	<property name="queue.size" value="2000" />
+
+	<!-- 控制台输出 -->
+	<appender name="STDOUT"
+		class="com.framework.appender.ConsoleAppenderExt">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>${local.file.format}</pattern>
+		</encoder>
+	</appender>
+	<!-- sys.log -->
+	<appender name="FILE"
+		class="com.framework.appender.RollingFileAppenderExt">
+		<file>${local.log.fullpath}/sys.log</file>
+		<!--拒绝ERROR日志 -->
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>DENY</onMatch>
+			<onMismatch>NEUTRAL</onMismatch>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--日志文件输出的文件名 -->
+			<FileNamePattern>${local.log.fullpath}/sys-%d{yyyy-MM-dd}-%i.log
+			</FileNamePattern>
+			<!--最长保存30天，超过会删除 -->
+			<MaxHistory>30</MaxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>10MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%threadId] %-5level %logger{50}
+				-%msg%n</pattern>
+		</encoder>
+	</appender>
+	<!-- sys-error.log -->
+	<appender name="FILE-ERROR"
+		class="com.framework.appender.CatRollingFileAppender">
+		<file>${local.log.fullpath}/sys-err.log</file>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--日志文件输出的文件名 -->
+			<FileNamePattern>${local.log.fullpath}/sys-err-%d{yyyy-MM-dd}-%i.log
+			</FileNamePattern>
+			<!--最长保存30天，超过会删除 -->
+			<MaxHistory>30</MaxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>10MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%threadId] %-5level %logger{50}
+				-%msg%n</pattern>
+		</encoder>
+	</appender>
+	<!-- HTTP.log -->
+	<appender name="HTTPLOG"
+		class="com.framework.appender.RollingFileAppenderExt">
+		<file>${local.log.fullpath}/sys-http.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${local.log.fullpath}/sys-http-%d{yyyy-MM-dd}-%i.log
+			</FileNamePattern>
+			<MaxHistory>90</MaxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>10MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%threadId] %-5level %logger{50}
+				-%msg%n</pattern>
+		</encoder>
+	</appender>
+	<!-- DUBBO-CONSUMER.log -->
+	<appender name="DUBBO-CONSUMER"
+		class="com.framework.appender.CatRollingFileAppender">
+		<file>${local.log.fullpath}/sys-dubbo-consumer.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${local.log.fullpath}/sys-dubbo-consumer-%d{yyyy-MM-dd}-%i.log
+			</FileNamePattern>
+			<MaxHistory>90</MaxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>10MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%threadId] %-5level %logger{50}
+				-%msg%n</pattern>
+		</encoder>
+	</appender>
+	<!-- DUBBO-PROVIDER.log -->
+	<appender name="DUBBO-PROVIDER"
+		class="com.framework.appender.CatRollingFileAppender">
+		<file>${local.log.fullpath}/sys-dubbo-provider.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${local.log.fullpath}/sys-dubbo-provider-%d{yyyy-MM-dd}-%i.log
+			</FileNamePattern>
+			<MaxHistory>90</MaxHistory>
+			<TimeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<MaxFileSize>10MB</MaxFileSize>
+			</TimeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%threadId] %-5level %logger{50}
+				-%msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- 异步输出 -->
+	<appender name="ASYNC_STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+		<!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+		<discardingThreshold>0</discardingThreshold>
+		<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+		<queueSize>${queue.size}</queueSize>
+		<!-- 添加附加的appender,最多只能添加一个 -->
+		<appender-ref ref="STDOUT" />
+		<!-- add the following line -->
+		<includeCallerData>true</includeCallerData>
+	</appender>
+	<appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+		<!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+		<discardingThreshold>0</discardingThreshold>
+		<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+		<queueSize>${queue.size}</queueSize>
+		<!-- 添加附加的appender,最多只能添加一个 -->
+		<appender-ref ref="FILE" />
+		<!-- add the following line -->
+		<includeCallerData>true</includeCallerData>
+	</appender>
+	<appender name="ASYNC_FILE-ERROR" class="ch.qos.logback.classic.AsyncAppender">
+		<!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+		<discardingThreshold>0</discardingThreshold>
+		<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+		<queueSize>${queue.size}</queueSize>
+		<!-- 添加附加的appender,最多只能添加一个 -->
+		<appender-ref ref="FILE-ERROR" />
+		<!-- add the following line -->
+		<includeCallerData>true</includeCallerData>
+	</appender>
+	<appender name="ASYNC_HTTPLOG" class="ch.qos.logback.classic.AsyncAppender">
+		<!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+		<discardingThreshold>0</discardingThreshold>
+		<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+		<queueSize>${queue.size}</queueSize>
+		<!-- 添加附加的appender,最多只能添加一个 -->
+		<appender-ref ref="HTTPLOG" />
+		<!-- add the following line -->
+		<includeCallerData>true</includeCallerData>
+	</appender>
+	<appender name="ASYNC_DUBBO-CONSUMER" class="ch.qos.logback.classic.AsyncAppender">
+		<!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+		<discardingThreshold>0</discardingThreshold>
+		<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+		<queueSize>${queue.size}</queueSize>
+		<!-- 添加附加的appender,最多只能添加一个 -->
+		<appender-ref ref="DUBBO-CONSUMER" />
+		<!-- add the following line -->
+		<includeCallerData>true</includeCallerData>
+	</appender>
+	<appender name="ASYNC_DUBBO-PROVIDER" class="ch.qos.logback.classic.AsyncAppender">
+		<!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+		<discardingThreshold>0</discardingThreshold>
+		<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+		<queueSize>${queue.size}</queueSize>
+		<!-- 添加附加的appender,最多只能添加一个 -->
+		<appender-ref ref="DUBBO-PROVIDER" />
+		<!-- add the following line -->
+		<includeCallerData>true</includeCallerData>
+	</appender>
+	<!--additivity=false 表示其他appender不会打印这个 -->
+	<logger name="sys.http.log" additivity="false" level="INFO">
+		<appender-ref ref="ASYNC_HTTPLOG" />
+		<appender-ref ref="ASYNC_STDOUT" />
+	</logger>
+
+	<logger name="dubbo.accesslog.consumer" additivity="false"
+		level="INFO">
+		<appender-ref ref="ASYNC_DUBBO-CONSUMER" />
+		<appender-ref ref="ASYNC_STDOUT" />
+	</logger>
+	<logger name="dubbo.accesslog.provider" additivity="false"
+		level="INFO">
+		<appender-ref ref="ASYNC_DUBBO-PROVIDER" />
+		<appender-ref ref="ASYNC_STDOUT" />
+	</logger>
+
+	<logger name="business.analyze" additivity="false" level="INFO">
+		<appender-ref ref="ASYNC_BUSINESS-ANALYZE" />
+		<appender-ref ref="ASYNC_STDOUT" />
+	</logger>
+
+	<!-- 日志输出级别 -->
+	<root level="INFO">
+		<appender-ref ref="ASYNC_STDOUT" />
+		<appender-ref ref="ASYNC_FILE" />
+		<appender-ref ref="ASYNC_FILE-ERROR" />
+	</root>
+
+</configuration>

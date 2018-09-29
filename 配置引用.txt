@@ -1,0 +1,40 @@
+	pom文件： 
+    	<dependency>
+				<groupId>com.framwork</groupId>
+				<artifactId>access-control</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+
+web文件：
+<!--logback日志环境变量配置 -->
+	<listener>
+		<listener-class>com.framework.listener.AppLogConfigListener</listener-class>
+	</listener>
+
+    <filter>
+		<filter-name>monitor-filter</filter-name>
+		<filter-class>com.framework.filter.AppHttpMonitorFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>monitor-filter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+	</filter-mapping>
+
+
+<!--通用过滤器，须exclude系统管理AppSystemManageServlet对应的url -->
+	<filter>
+		<filter-name>appServletContextFilter</filter-name>
+		<filter-class>com.framework.filter.AppServletContextFilter</filter-class>
+		<init-param>
+			<param-name>exclusions</param-name>
+			<param-value>
+                default-static, /sys/manage
+            </param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>appServletContextFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
