@@ -20,7 +20,7 @@
 		<commons.lang3.version>3.4</commons.lang3.version>
 		<commons.validator>1.5.0</commons.validator>
 		<commons.codec.version>1.10</commons.codec.version>
-		<commons.beanutils.version>1.8.3</commons.beanutils.version>
+		<commons.beanutils.version>1.9.2</commons.beanutils.version>
 		<commons.collections.version>3.2.1</commons.collections.version>
 		<commons.configuration.version>1.9</commons.configuration.version>
 		<!-- cat -->
