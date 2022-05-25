@@ -11,7 +11,7 @@
 		<maven.compiler.plugin.version>2.5.1</maven.compiler.plugin.version>
 		<maven.resources.plugin.version>2.5</maven.resources.plugin.version>
 		<!-- spring版本号 -->
-		<spring.version>4.3.17.RELEASE</spring.version>
+		<spring.version>5.2.22.RELEASE</spring.version>
 		<!--logback,slf4j版本号 -->
 		<logback.version>1.1.7</logback.version>
 		<logback.ext.version>0.1.4</logback.ext.version>
